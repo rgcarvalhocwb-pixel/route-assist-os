@@ -14,7 +14,313 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          address: string
+          alarm_chip: string | null
+          client_routine: string | null
+          contract_details: Json | null
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          monitored_areas: string | null
+          name: string
+          risk_level: Database["public"]["Enums"]["risk_level"] | null
+          updated_at: string
+          zins_account: string | null
+        }
+        Insert: {
+          address: string
+          alarm_chip?: string | null
+          client_routine?: string | null
+          contract_details?: Json | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          monitored_areas?: string | null
+          name: string
+          risk_level?: Database["public"]["Enums"]["risk_level"] | null
+          updated_at?: string
+          zins_account?: string | null
+        }
+        Update: {
+          address?: string
+          alarm_chip?: string | null
+          client_routine?: string | null
+          contract_details?: Json | null
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          monitored_areas?: string | null
+          name?: string
+          risk_level?: Database["public"]["Enums"]["risk_level"] | null
+          updated_at?: string
+          zins_account?: string | null
+        }
+        Relationships: []
+      }
+      equipment: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          installation_date: string | null
+          installation_location: string | null
+          manufacturer: string | null
+          model: string | null
+          type: Database["public"]["Enums"]["equipment_type"]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          installation_date?: string | null
+          installation_location?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          type: Database["public"]["Enums"]["equipment_type"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          installation_date?: string | null
+          installation_location?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          type?: Database["public"]["Enums"]["equipment_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incidents: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string
+          id: string
+          location_details: string | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          severity: string | null
+          status: Database["public"]["Enums"]["incident_status"]
+          type: Database["public"]["Enums"]["incident_type"]
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description: string
+          id?: string
+          location_details?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: Database["public"]["Enums"]["incident_status"]
+          type: Database["public"]["Enums"]["incident_type"]
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          location_details?: string | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          severity?: string | null
+          status?: Database["public"]["Enums"]["incident_status"]
+          type?: Database["public"]["Enums"]["incident_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      service_order_equipment: {
+        Row: {
+          created_at: string
+          equipment_id: string
+          id: string
+          service_order_id: string
+        }
+        Insert: {
+          created_at?: string
+          equipment_id: string
+          id?: string
+          service_order_id: string
+        }
+        Update: {
+          created_at?: string
+          equipment_id?: string
+          id?: string
+          service_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_order_equipment_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_order_equipment_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_orders: {
+        Row: {
+          client_id: string
+          client_signature: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          notes: string | null
+          photos: string[] | null
+          scheduled_date: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          started_at: string | null
+          status: Database["public"]["Enums"]["os_status"]
+          technician_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          client_signature?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          photos?: string[] | null
+          scheduled_date?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["os_status"]
+          technician_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          client_signature?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          photos?: string[] | null
+          scheduled_date?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["os_status"]
+          technician_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_orders_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +329,28 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      equipment_type:
+        | "camera"
+        | "alarm"
+        | "electric_fence"
+        | "dvr"
+        | "sensor"
+        | "siren"
+        | "other"
+      incident_status: "open" | "resolved" | "in_progress"
+      incident_type:
+        | "invasion_detected"
+        | "power_failure"
+        | "communication_failure"
+        | "maintenance_pending"
+        | "technical_support"
+      os_status: "open" | "in_progress" | "completed" | "cancelled"
+      risk_level: "low" | "medium" | "high" | "critical"
+      service_type:
+        | "preventive_maintenance"
+        | "corrective_maintenance"
+        | "installation"
+        | "inspection"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +477,32 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      equipment_type: [
+        "camera",
+        "alarm",
+        "electric_fence",
+        "dvr",
+        "sensor",
+        "siren",
+        "other",
+      ],
+      incident_status: ["open", "resolved", "in_progress"],
+      incident_type: [
+        "invasion_detected",
+        "power_failure",
+        "communication_failure",
+        "maintenance_pending",
+        "technical_support",
+      ],
+      os_status: ["open", "in_progress", "completed", "cancelled"],
+      risk_level: ["low", "medium", "high", "critical"],
+      service_type: [
+        "preventive_maintenance",
+        "corrective_maintenance",
+        "installation",
+        "inspection",
+      ],
+    },
   },
 } as const
