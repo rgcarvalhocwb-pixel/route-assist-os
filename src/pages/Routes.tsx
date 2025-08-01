@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Route, Clock, Fuel, Plus, Search, Navigation, Zap } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Navbar from '@/components/layout/Navbar';
+import CreateRouteModal from '@/components/routes/CreateRouteModal';
 
 interface RouteStop {
   id: string;
@@ -35,6 +36,7 @@ const Routes = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [isOptimizing, setIsOptimizing] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const { toast } = useToast();
 
   // Mock data para demonstração
@@ -110,6 +112,10 @@ const Routes = () => {
     ];
     setRoutes(mockRoutes);
   }, []);
+
+  const handleRouteCreated = (newRoute: OptimizedRoute) => {
+    setRoutes(prev => [newRoute, ...prev]);
+  };
 
   const handleOptimizeRoute = async (routeId: string) => {
     setIsOptimizing(true);
@@ -188,7 +194,10 @@ const Routes = () => {
               Otimize rotas, economize tempo e combustível
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
+          <Button 
+            className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+            onClick={() => setShowCreateModal(true)}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Nova Rota
           </Button>
@@ -346,6 +355,12 @@ const Routes = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <CreateRouteModal 
+          open={showCreateModal}
+          onOpenChange={setShowCreateModal}
+          onRouteCreated={handleRouteCreated}
+        />
       </div>
     </div>
   );
