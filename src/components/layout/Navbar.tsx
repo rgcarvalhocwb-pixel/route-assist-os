@@ -59,17 +59,20 @@ const Navbar = () => {
       <div className="flex h-16 items-center px-4">
         <div className="flex items-center space-x-6">
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold">RouteAssist OS</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">RouteAssist OS</span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/clients" className="text-sm font-medium hover:text-primary">
               Clientes
             </Link>
-            <Link to="/service-orders" className="text-sm font-medium hover:text-primary">
+            <Link to="/routes" className="text-sm font-medium hover:text-primary transition-colors">
+              Rotas
+            </Link>
+            <Link to="/service-orders" className="text-sm font-medium hover:text-primary transition-colors">
               Ordens de Serviço
             </Link>
-            <Link to="/incidents" className="text-sm font-medium hover:text-primary">
+            <Link to="/incidents" className="text-sm font-medium hover:text-primary transition-colors">
               Ocorrências
             </Link>
           </div>
