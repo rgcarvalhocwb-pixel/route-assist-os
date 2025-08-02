@@ -20,7 +20,7 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '',
-    service_type: 'maintenance',
+    service_type: 'maintenance' as 'installation' | 'maintenance' | 'preventive_maintenance' | 'repair' | 'technical_support',
     description: '',
     scheduled_date: ''
   });
@@ -47,12 +47,12 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
         service_type: formData.service_type,
         description: formData.description || null,
         scheduled_date: formData.scheduled_date || null,
-        status: 'open'
+        status: 'open' as 'open' | 'in_progress' | 'completed' | 'cancelled'
       };
 
       const { error } = await supabase
         .from('service_orders')
-        .insert([orderData]);
+        .insert(orderData);
 
       if (error) throw error;
 
@@ -115,7 +115,7 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
 
           <div className="space-y-2">
             <Label htmlFor="service_type">Tipo de Serviço *</Label>
-            <Select value={formData.service_type} onValueChange={(value) => setFormData({ ...formData, service_type: value })}>
+            <Select value={formData.service_type} onValueChange={(value: 'installation' | 'maintenance' | 'preventive_maintenance' | 'repair' | 'technical_support') => setFormData({ ...formData, service_type: value })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
