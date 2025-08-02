@@ -20,7 +20,7 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     client_id: '',
-    service_type: 'maintenance' as 'installation' | 'maintenance' | 'preventive_maintenance' | 'repair' | 'technical_support',
+    service_type: 'preventive_maintenance' as 'installation' | 'preventive_maintenance' | 'corrective_maintenance' | 'inspection',
     description: '',
     scheduled_date: ''
   });
@@ -52,7 +52,7 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
 
       const { error } = await supabase
         .from('service_orders')
-        .insert(orderData);
+        .insert([orderData]);
 
       if (error) throw error;
 
@@ -63,7 +63,7 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
 
       setFormData({
         client_id: '',
-        service_type: 'maintenance',
+        service_type: 'preventive_maintenance',
         description: '',
         scheduled_date: ''
       });
@@ -115,16 +115,15 @@ export const CreateServiceOrderModal = ({ onOrderCreated }: CreateServiceOrderMo
 
           <div className="space-y-2">
             <Label htmlFor="service_type">Tipo de Serviço *</Label>
-            <Select value={formData.service_type} onValueChange={(value: 'installation' | 'maintenance' | 'preventive_maintenance' | 'repair' | 'technical_support') => setFormData({ ...formData, service_type: value })}>
+            <Select value={formData.service_type} onValueChange={(value: 'installation' | 'preventive_maintenance' | 'corrective_maintenance' | 'inspection') => setFormData({ ...formData, service_type: value })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="installation">Instalação</SelectItem>
-                <SelectItem value="maintenance">Manutenção</SelectItem>
                 <SelectItem value="preventive_maintenance">Manutenção Preventiva</SelectItem>
-                <SelectItem value="repair">Reparo</SelectItem>
-                <SelectItem value="technical_support">Suporte Técnico</SelectItem>
+                <SelectItem value="corrective_maintenance">Manutenção Corretiva</SelectItem>
+                <SelectItem value="inspection">Inspeção</SelectItem>
               </SelectContent>
             </Select>
           </div>
