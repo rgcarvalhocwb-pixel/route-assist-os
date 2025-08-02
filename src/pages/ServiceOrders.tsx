@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, Calendar, User, Plus, Search } from 'lucide-react';
+import { ClipboardList, Calendar, User, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AppLayout from '@/components/layout/AppLayout';
+import { CreateServiceOrderModal } from '@/components/service-orders/CreateServiceOrderModal';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceOrder {
@@ -116,10 +117,7 @@ const ServiceOrders = () => {
               Gerencie e acompanhe todas as ordens de serviço
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-            <Plus className="h-4 w-4 mr-2" />
-            Nova Ordem
-          </Button>
+          <CreateServiceOrderModal onOrderCreated={fetchServiceOrders} />
         </div>
 
         {/* Statistics Cards */}

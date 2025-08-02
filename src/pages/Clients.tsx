@@ -1,22 +1,20 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Search, Users, MapPin, Shield, AlertTriangle } from 'lucide-react';
+import { Search, Users, MapPin, Shield, AlertTriangle } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import CsvImporter from '@/components/common/CsvImporter';
+import { CreateClientModal } from '@/components/clients/CreateClientModal';
 import { useClients } from '@/hooks/useClients';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const { clients, loading, refetch } = useClients();
-  const { toast } = useToast();
 
   const sampleClientData = [
     {
@@ -115,10 +113,7 @@ const Clients = () => {
               requiredFields={['name', 'address', 'risk_level']}
               filename="clientes"
             />
-            <Button className="bg-gradient-to-r from-primary to-secondary hover:opacity-90">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Cliente
-            </Button>
+            <CreateClientModal onClientCreated={refetch} />
           </div>
         </div>
 
