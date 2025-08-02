@@ -6,28 +6,29 @@ import { useToast } from '@/hooks/use-toast';
 export interface RouteStop {
   id: string;
   route_id: string;
-  client_id?: string;
+  client_id?: string | null;
   address: string;
   client_name: string;
-  latitude?: number;
-  longitude?: number;
-  estimated_time: number;
-  status: 'pending' | 'in_progress' | 'completed';
-  notes?: string;
-  sequence_order: number;
+  latitude?: number | null;
+  longitude?: number | null;
+  estimated_time?: number | null;
+  status?: string | null;
+  notes?: string | null;
+  sequence_order?: number | null;
+  created_at?: string;
 }
 
 export interface Route {
   id: string;
   name: string;
-  description?: string;
-  total_distance: number;
-  total_time: number;
-  fuel_estimate: number;
-  status: 'draft' | 'active' | 'completed';
+  description?: string | null;
+  total_distance?: number | null;
+  total_time?: number | null;
+  fuel_estimate?: number | null;
+  status?: string | null;
   created_at: string;
   updated_at: string;
-  user_id?: string;
+  user_id?: string | null;
   stops?: RouteStop[];
 }
 
@@ -48,7 +49,7 @@ export const useRoutes = () => {
 
       // Buscar paradas para cada rota
       const routesWithStops = await Promise.all(
-        routesData.map(async (route) => {
+        (routesData || []).map(async (route) => {
           const { data: stopsData, error: stopsError } = await supabase
             .from('route_stops')
             .select('*')
@@ -145,7 +146,7 @@ export const useRoutes = () => {
     }
   };
 
-  const updateRouteStatus = async (routeId: string, status: 'draft' | 'active' | 'completed') => {
+  const updateRouteStatus = async (routeId: string, status: string) => {
     try {
       const { error } = await supabase
         .from('routes')
@@ -176,9 +177,9 @@ export const useRoutes = () => {
       const route = routes.find(r => r.id === routeId);
       if (!route) return;
 
-      const optimizedDistance = route.total_distance * 0.85;
-      const optimizedTime = route.total_time * 0.9;
-      const optimizedFuel = route.fuel_estimate * 0.85;
+      const optimizedDistance = (route.total_distance || 0) * 0.85;
+      const optimizedTime = (route.total_time || 0) * 0.9;
+      const optimizedFuel = (route.fuel_estimate || 0) * 0.85;
 
       const { error } = await supabase
         .from('routes')
