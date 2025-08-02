@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -55,60 +56,35 @@ const Navbar = () => {
     : user.email?.substring(0, 2).toUpperCase() || 'US';
 
   return (
-    <nav className="border-b bg-background">
-      <div className="flex h-16 items-center px-4">
-        <div className="flex items-center space-x-6">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">RouteAssist OS</span>
-          </Link>
-          
-          <div className="hidden md:flex items-center space-x-6">
-            <Link to="/clients" className="text-sm font-medium hover:text-primary">
-              Clientes
-            </Link>
-            <Link to="/routes" className="text-sm font-medium hover:text-primary transition-colors">
-              Rotas
-            </Link>
-            <Link to="/service-orders" className="text-sm font-medium hover:text-primary transition-colors">
-              Ordens de Serviço
-            </Link>
-            <Link to="/incidents" className="text-sm font-medium hover:text-primary transition-colors">
-              Ocorrências
-            </Link>
-          </div>
-        </div>
-
-        <div className="ml-auto flex items-center space-x-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{userInitials}</AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuItem className="flex-col items-start">
-                <div className="font-medium">{user.user_metadata?.name || 'Usuário'}</div>
-                <div className="text-xs text-muted-foreground">{user.email}</div>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Perfil</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Configurações</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleSignOut}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Sair</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-    </nav>
+    <div className="flex items-center justify-end space-x-4">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>{userInitials}</AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuItem className="flex-col items-start">
+            <div className="font-medium">{user.user_metadata?.name || 'Usuário'}</div>
+            <div className="text-xs text-muted-foreground">{user.email}</div>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <User className="mr-2 h-4 w-4" />
+            <span>Perfil</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Configurações</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sair</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 

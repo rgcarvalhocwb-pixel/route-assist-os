@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MapPin, Route, Clock, Fuel, Plus, Search, Navigation, Zap, MoreVertical, Play, Pause, Trash2 } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
+import AppLayout from '@/components/layout/AppLayout';
+import CsvImporter from '@/components/common/CsvImporter';
 import CreateRouteModal from '@/components/routes/CreateRouteModal';
 import { useRoutes } from '@/hooks/useRoutes';
 
@@ -18,6 +18,55 @@ const Routes = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   const { routes, loading, createRoute, updateRouteStatus, optimizeRoute, deleteRoute } = useRoutes();
+
+  const sampleRouteData = [
+    {
+      name: 'Rota Centro',
+      description: 'Rota de atendimento no centro da cidade',
+      client_name_1: 'Empresa ABC',
+      address_1: 'Rua das Flores, 123',
+      notes_1: 'Verificação de portaria',
+      client_name_2: 'Loja XYZ',
+      address_2: 'Av. Principal, 456',
+      notes_2: 'Ronda noturna',
+      client_name_3: 'Escritório DEF',
+      address_3: 'Rua Comercial, 789',
+      notes_3: 'Monitoramento de alarmes'
+    }
+  ];
+
+  const handleImportRoutes = async (data: Record<string, any>[]) => {
+    try {
+      for (const row of data) {
+        const stops = [];
+        
+        // Extrair paradas do CSV (até 10 paradas por rota)
+        for (let i = 1; i <= 10; i++) {
+          const clientName = row[`client_name_${i}`];
+          const address = row[`address_${i}`];
+          
+          if (clientName && address) {
+            stops.push({
+              client_name: clientName,
+              address: address,
+              notes: row[`notes_${i}`] || ''
+            });
+          }
+        }
+
+        if (stops.length > 0) {
+          await createRoute({
+            name: row.name,
+            description: row.description || '',
+            stops
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Erro ao importar rotas:', error);
+      throw new Error(error.message || 'Erro ao importar rotas');
+    }
+  };
 
   const handleRouteCreated = async (routeData: any) => {
     await createRoute(routeData);
@@ -68,18 +117,16 @@ const Routes = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
+      <AppLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">Carregando rotas...</div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <AppLayout>
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -88,13 +135,23 @@ const Routes = () => {
               Otimize rotas, economize tempo e combustível
             </p>
           </div>
-          <Button 
-            className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
-            onClick={() => setShowCreateModal(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Nova Rota
-          </Button>
+          <div className="flex gap-2">
+            <CsvImporter
+              title="Importar Rotas"
+              description="Importe rotas em lote usando um arquivo CSV"
+              sampleData={sampleRouteData}
+              onImport={handleImportRoutes}
+              requiredFields={['name', 'client_name_1', 'address_1']}
+              filename="rotas"
+            />
+            <Button 
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Rota
+            </Button>
+          </div>
         </div>
 
         {/* Statistics Cards */}
@@ -287,7 +344,7 @@ const Routes = () => {
           onRouteCreated={handleRouteCreated}
         />
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
