@@ -219,6 +219,105 @@ export type Database = {
         }
         Relationships: []
       }
+      route_stops: {
+        Row: {
+          address: string
+          client_id: string | null
+          client_name: string
+          created_at: string
+          estimated_time: number | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          notes: string | null
+          route_id: string
+          sequence_order: number | null
+          status: string | null
+        }
+        Insert: {
+          address: string
+          client_id?: string | null
+          client_name: string
+          created_at?: string
+          estimated_time?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          route_id: string
+          sequence_order?: number | null
+          status?: string | null
+        }
+        Update: {
+          address?: string
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          estimated_time?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          notes?: string | null
+          route_id?: string
+          sequence_order?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_stops_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "route_stops_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routes: {
+        Row: {
+          created_at: string
+          description: string | null
+          fuel_estimate: number | null
+          id: string
+          name: string
+          status: string | null
+          total_distance: number | null
+          total_time: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          fuel_estimate?: number | null
+          id?: string
+          name: string
+          status?: string | null
+          total_distance?: number | null
+          total_time?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          fuel_estimate?: number | null
+          id?: string
+          name?: string
+          status?: string | null
+          total_distance?: number | null
+          total_time?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       service_order_equipment: {
         Row: {
           created_at: string

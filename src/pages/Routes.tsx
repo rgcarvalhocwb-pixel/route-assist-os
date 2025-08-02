@@ -1,152 +1,35 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Route, Clock, Fuel, Plus, Search, Navigation, Zap } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { MapPin, Route, Clock, Fuel, Plus, Search, Navigation, Zap, MoreVertical, Play, Pause, Trash2 } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import CreateRouteModal from '@/components/routes/CreateRouteModal';
-
-interface RouteStop {
-  id: string;
-  address: string;
-  client_name: string;
-  lat: number;
-  lng: number;
-  estimated_time: number;
-  status: 'pending' | 'completed' | 'in_progress';
-  notes?: string;
-}
-
-interface OptimizedRoute {
-  id: string;
-  name: string;
-  stops: RouteStop[];
-  total_distance: number;
-  total_time: number;
-  fuel_estimate: number;
-  status: 'draft' | 'active' | 'completed';
-  created_at: string;
-}
+import { useRoutes } from '@/hooks/useRoutes';
 
 const Routes = () => {
-  const [routes, setRoutes] = useState<OptimizedRoute[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { toast } = useToast();
+  
+  const { routes, loading, createRoute, updateRouteStatus, optimizeRoute, deleteRoute } = useRoutes();
 
-  // Mock data para demonstração
-  useEffect(() => {
-    const mockRoutes: OptimizedRoute[] = [
-      {
-        id: '1',
-        name: 'Rota Centro - Manhã',
-        stops: [
-          {
-            id: '1',
-            address: 'Rua das Flores, 123 - Centro',
-            client_name: 'Cliente A',
-            lat: -23.550520,
-            lng: -46.633309,
-            estimated_time: 30,
-            status: 'completed'
-          },
-          {
-            id: '2',
-            address: 'Av. Paulista, 456 - Bela Vista',
-            client_name: 'Cliente B',
-            lat: -23.561684,
-            lng: -46.656139,
-            estimated_time: 45,
-            status: 'in_progress'
-          },
-          {
-            id: '3',
-            address: 'Rua Augusta, 789 - Consolação',
-            client_name: 'Cliente C',
-            lat: -23.553618,
-            lng: -46.662282,
-            estimated_time: 20,
-            status: 'pending'
-          }
-        ],
-        total_distance: 15.5,
-        total_time: 95,
-        fuel_estimate: 2.3,
-        status: 'active',
-        created_at: '2024-01-20T08:00:00Z'
-      },
-      {
-        id: '2',
-        name: 'Rota Zona Sul - Tarde',
-        stops: [
-          {
-            id: '4',
-            address: 'Rua Domingos de Morais, 321 - Vila Mariana',
-            client_name: 'Cliente D',
-            lat: -23.588849,
-            lng: -46.638291,
-            estimated_time: 40,
-            status: 'pending'
-          },
-          {
-            id: '5',
-            address: 'Av. Ibirapuera, 654 - Ibirapuera',
-            client_name: 'Cliente E',
-            lat: -23.573851,
-            lng: -46.659524,
-            estimated_time: 35,
-            status: 'pending'
-          }
-        ],
-        total_distance: 12.2,
-        total_time: 75,
-        fuel_estimate: 1.8,
-        status: 'draft',
-        created_at: '2024-01-20T14:00:00Z'
-      }
-    ];
-    setRoutes(mockRoutes);
-  }, []);
-
-  const handleRouteCreated = (newRoute: OptimizedRoute) => {
-    setRoutes(prev => [newRoute, ...prev]);
+  const handleRouteCreated = async (routeData: any) => {
+    await createRoute(routeData);
+    setShowCreateModal(false);
   };
 
   const handleOptimizeRoute = async (routeId: string) => {
-    setIsOptimizing(true);
+    setIsOptimizing(routeId);
     try {
-      // Simula otimização da rota
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setRoutes(prev => prev.map(route => {
-        if (route.id === routeId) {
-          return {
-            ...route,
-            total_distance: route.total_distance * 0.85, // Redução de 15% na distância
-            total_time: route.total_time * 0.9, // Redução de 10% no tempo
-            fuel_estimate: route.fuel_estimate * 0.85 // Redução de 15% no combustível
-          };
-        }
-        return route;
-      }));
-
-      toast({
-        title: "Rota otimizada!",
-        description: "A rota foi otimizada com sucesso. Economia de tempo e combustível aplicada.",
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao otimizar",
-        description: "Não foi possível otimizar a rota. Tente novamente.",
-      });
+      await optimizeRoute(routeId);
     } finally {
-      setIsOptimizing(false);
+      setIsOptimizing(null);
     }
   };
 
@@ -174,7 +57,7 @@ const Routes = () => {
 
   const filteredRoutes = routes.filter(route => {
     const matchesSearch = route.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         route.stops.some(stop => 
+                         (route.stops || []).some(stop => 
                            stop.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            stop.address.toLowerCase().includes(searchTerm.toLowerCase())
                          );
@@ -182,6 +65,17 @@ const Routes = () => {
     if (activeTab === 'all') return matchesSearch;
     return matchesSearch && route.status === activeTab;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Carregando rotas...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -222,7 +116,7 @@ const Routes = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {routes.reduce((acc, route) => acc + route.stops.length, 0)}
+                {routes.reduce((acc, route) => acc + (route.stops?.length || 0), 0)}
               </div>
             </CardContent>
           </Card>
@@ -286,29 +180,57 @@ const Routes = () => {
                           {getStatusBadge(route.status)}
                         </CardTitle>
                         <CardDescription>
-                          {route.stops.length} paradas • {route.total_distance.toFixed(1)} km • {Math.round(route.total_time)} min
+                          {route.stops?.length || 0} paradas • {route.total_distance.toFixed(1)} km • {Math.round(route.total_time)} min
                         </CardDescription>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleOptimizeRoute(route.id)}
-                          disabled={isOptimizing}
+                          disabled={isOptimizing === route.id}
                         >
                           <Zap className="h-4 w-4 mr-2" />
-                          {isOptimizing ? 'Otimizando...' : 'Otimizar'}
+                          {isOptimizing === route.id ? 'Otimizando...' : 'Otimizar'}
                         </Button>
                         <Button variant="outline" size="sm">
                           <Navigation className="h-4 w-4 mr-2" />
                           Navegar
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {route.status === 'draft' && (
+                              <DropdownMenuItem onClick={() => updateRouteStatus(route.id, 'active')}>
+                                <Play className="h-4 w-4 mr-2" />
+                                Ativar Rota
+                              </DropdownMenuItem>
+                            )}
+                            {route.status === 'active' && (
+                              <DropdownMenuItem onClick={() => updateRouteStatus(route.id, 'completed')}>
+                                <Pause className="h-4 w-4 mr-2" />
+                                Finalizar Rota
+                              </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem 
+                              onClick={() => deleteRoute(route.id)}
+                              className="text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Excluir Rota
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {route.stops.map((stop, index) => (
+                      {(route.stops || []).map((stop, index) => (
                         <div key={stop.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                           <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-medium">
@@ -317,6 +239,9 @@ const Routes = () => {
                             <div>
                               <p className="font-medium text-sm">{stop.client_name}</p>
                               <p className="text-xs text-muted-foreground">{stop.address}</p>
+                              {stop.notes && (
+                                <p className="text-xs text-muted-foreground italic">Obs: {stop.notes}</p>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">

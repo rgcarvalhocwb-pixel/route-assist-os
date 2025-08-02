@@ -1,13 +1,14 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Plus, X, Navigation } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useClients } from '@/hooks/useClients';
 
 interface RouteStop {
   id: string;
@@ -19,7 +20,7 @@ interface RouteStop {
 interface CreateRouteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onRouteCreated?: (route: any) => void;
+  onRouteCreated: (route: any) => void;
 }
 
 const CreateRouteModal = ({ open, onOpenChange, onRouteCreated }: CreateRouteModalProps) => {
@@ -29,6 +30,7 @@ const CreateRouteModal = ({ open, onOpenChange, onRouteCreated }: CreateRouteMod
   const [stops, setStops] = useState<RouteStop[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
+  const { clients } = useClients();
 
   const addStop = () => {
     if (!newStop.address || !newStop.client_name) {
@@ -67,32 +69,14 @@ const CreateRouteModal = ({ open, onOpenChange, onRouteCreated }: CreateRouteMod
 
     setIsCreating(true);
     try {
-      // Simula criação da rota
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const newRoute = {
-        id: Date.now().toString(),
+      await onRouteCreated({
         name: routeName,
         description,
-        stops: stops.map((stop, index) => ({
-          ...stop,
-          lat: -23.550520 + (Math.random() - 0.5) * 0.1, // Mock coordinates
-          lng: -46.633309 + (Math.random() - 0.5) * 0.1,
-          estimated_time: 20 + Math.floor(Math.random() * 40),
-          status: 'pending' as const
-        })),
-        total_distance: stops.length * 3.5 + Math.random() * 5,
-        total_time: stops.length * 25 + Math.floor(Math.random() * 30),
-        fuel_estimate: stops.length * 0.8 + Math.random(),
-        status: 'draft' as const,
-        created_at: new Date().toISOString()
-      };
-
-      onRouteCreated?.(newRoute);
-      
-      toast({
-        title: "Rota criada!",
-        description: `A rota "${routeName}" foi criada com ${stops.length} paradas.`,
+        stops: stops.map(stop => ({
+          address: stop.address,
+          client_name: stop.client_name,
+          notes: stop.notes
+        }))
       });
 
       // Reset form
@@ -102,14 +86,18 @@ const CreateRouteModal = ({ open, onOpenChange, onRouteCreated }: CreateRouteMod
       setNewStop({ address: '', client_name: '', notes: '' });
       onOpenChange(false);
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erro ao criar rota",
-        description: "Não foi possível criar a rota. Tente novamente.",
-      });
+      // Error is handled in the hook
     } finally {
       setIsCreating(false);
     }
+  };
+
+  const selectClient = (client: any) => {
+    setNewStop({
+      ...newStop,
+      client_name: client.name,
+      address: client.address
+    });
   };
 
   const openInMaps = (address: string) => {
@@ -150,6 +138,25 @@ const CreateRouteModal = ({ open, onOpenChange, onRouteCreated }: CreateRouteMod
               />
             </div>
           </div>
+
+          {/* Client Selection */}
+          {clients.length > 0 && (
+            <div className="space-y-2">
+              <Label>Selecionar Cliente Existente</Label>
+              <div className="flex flex-wrap gap-2 max-h-24 overflow-y-auto">
+                {clients.map((client) => (
+                  <Badge
+                    key={client.id}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
+                    onClick={() => selectClient(client)}
+                  >
+                    {client.name}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Add Stop */}
           <div className="border rounded-lg p-4 space-y-4">
