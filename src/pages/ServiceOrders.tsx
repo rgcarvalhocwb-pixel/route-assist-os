@@ -1,13 +1,15 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ClipboardList, Calendar, User, Search } from 'lucide-react';
+import { ClipboardList, Calendar, User, Search, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AppLayout from '@/components/layout/AppLayout';
 import { CreateServiceOrderModal } from '@/components/service-orders/CreateServiceOrderModal';
+import { ServiceOrderDetails } from '@/components/service-orders/ServiceOrderDetails';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceOrder {
@@ -18,9 +20,18 @@ interface ServiceOrder {
   description?: string;
   scheduled_date?: string;
   created_at: string;
+  started_at?: string;
+  completed_at?: string;
+  notes?: string;
+  photos?: string[];
+  client_signature?: string;
+  technician_id?: string;
   clients?: {
     name: string;
     address: string;
+  };
+  profiles?: {
+    name: string;
   };
 }
 
@@ -29,6 +40,8 @@ const ServiceOrders = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState<ServiceOrder | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -45,6 +58,9 @@ const ServiceOrders = () => {
           clients (
             name,
             address
+          ),
+          profiles (
+            name
           )
         `)
         .order('created_at', { ascending: false });
@@ -63,6 +79,11 @@ const ServiceOrders = () => {
     }
   };
 
+  const openOrderDetails = (order: ServiceOrder) => {
+    setSelectedOrder(order);
+    setDetailsOpen(true);
+  };
+
   const getStatusBadge = (status: string) => {
     const statusMap = {
       open: { label: 'Aberta', variant: 'default' as const },
@@ -78,10 +99,9 @@ const ServiceOrders = () => {
   const getServiceTypeBadge = (type: string) => {
     const typeMap = {
       installation: { label: 'Instalação', color: 'bg-blue-100 text-blue-800' },
-      maintenance: { label: 'Manutenção', color: 'bg-green-100 text-green-800' },
       preventive_maintenance: { label: 'Manutenção Preventiva', color: 'bg-yellow-100 text-yellow-800' },
-      repair: { label: 'Reparo', color: 'bg-red-100 text-red-800' },
-      technical_support: { label: 'Suporte Técnico', color: 'bg-purple-100 text-purple-800' }
+      corrective_maintenance: { label: 'Manutenção Corretiva', color: 'bg-green-100 text-green-800' },
+      inspection: { label: 'Inspeção', color: 'bg-purple-100 text-purple-800' }
     };
     
     const config = typeMap[type as keyof typeof typeMap] || { label: type, color: 'bg-gray-100 text-gray-800' };
@@ -197,10 +217,23 @@ const ServiceOrders = () => {
                         </CardTitle>
                         <CardDescription>
                           {order.clients?.address}
+                          {order.profiles && (
+                            <span className="ml-2 text-xs">
+                              • Técnico: {order.profiles.name}
+                            </span>
+                          )}
                         </CardDescription>
                       </div>
-                      <div className="text-right">
+                      <div className="flex items-center gap-2">
                         {getServiceTypeBadge(order.service_type)}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openOrderDetails(order)}
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          Ver Detalhes
+                        </Button>
                       </div>
                     </div>
                   </CardHeader>
@@ -218,6 +251,13 @@ const ServiceOrders = () => {
                         </span>
                       )}
                     </div>
+                    {order.photos && order.photos.length > 0 && (
+                      <div className="mt-2">
+                        <span className="text-xs text-muted-foreground">
+                          📷 {order.photos.length} foto(s) anexada(s)
+                        </span>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -236,6 +276,13 @@ const ServiceOrders = () => {
             </div>
           </TabsContent>
         </Tabs>
+
+        <ServiceOrderDetails
+          order={selectedOrder}
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          onOrderUpdated={fetchServiceOrders}
+        />
       </div>
     </AppLayout>
   );
