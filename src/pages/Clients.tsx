@@ -4,17 +4,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Users, MapPin, Shield, AlertTriangle } from 'lucide-react';
+import { Search, Users, MapPin, Shield, AlertTriangle, Map } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import CsvImporter from '@/components/common/CsvImporter';
 import { CreateClientModal } from '@/components/clients/CreateClientModal';
 import { useClients } from '@/hooks/useClients';
+import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 import { supabase } from '@/integrations/supabase/client';
+import GoogleMapsWrapper from '@/components/maps/GoogleMapsWrapper';
+import ClientMap from '@/components/maps/ClientMap';
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+  const [showMap, setShowMap] = useState(false);
   const { clients, loading, refetch } = useClients();
+  const { apiKey, configured } = useGoogleMaps();
 
   const sampleClientData = [
     {
@@ -105,6 +110,14 @@ const Clients = () => {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowMap(!showMap)}
+              className="flex items-center gap-2"
+            >
+              <Map className="h-4 w-4" />
+              {showMap ? 'Lista' : 'Mapa'}
+            </Button>
             <CsvImporter
               title="Importar Clientes"
               description="Importe clientes em lote usando um arquivo CSV"
@@ -178,6 +191,26 @@ const Clients = () => {
             />
           </div>
         </div>
+
+        {/* Map View */}
+        {showMap && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Mapa dos Clientes</CardTitle>
+              <CardDescription>
+                Visualização geográfica dos clientes com coordenadas cadastradas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GoogleMapsWrapper apiKey={apiKey}>
+                <ClientMap 
+                  clients={filteredClients}
+                  height="500px"
+                />
+              </GoogleMapsWrapper>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Clients Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
