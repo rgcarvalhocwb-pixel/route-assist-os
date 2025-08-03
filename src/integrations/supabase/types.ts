@@ -189,6 +189,162 @@ export type Database = {
           },
         ]
       }
+      monitoring_alerts: {
+        Row: {
+          alert_type: string
+          conditions: Json
+          created_at: string
+          device_id: string
+          id: string
+          is_active: boolean | null
+          notification_methods: Json | null
+          updated_at: string
+        }
+        Insert: {
+          alert_type: string
+          conditions: Json
+          created_at?: string
+          device_id: string
+          id?: string
+          is_active?: boolean | null
+          notification_methods?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          alert_type?: string
+          conditions?: Json
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_active?: boolean | null
+          notification_methods?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitoring_alerts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "monitoring_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monitoring_devices: {
+        Row: {
+          battery_level: number | null
+          chip_number: string | null
+          client_id: string
+          configuration: Json | null
+          created_at: string
+          device_name: string
+          device_status: string | null
+          device_type: string
+          firmware_version: string | null
+          id: string
+          imei: string | null
+          last_communication: string | null
+          operator: string | null
+          signal_strength: number | null
+          updated_at: string
+        }
+        Insert: {
+          battery_level?: number | null
+          chip_number?: string | null
+          client_id: string
+          configuration?: Json | null
+          created_at?: string
+          device_name: string
+          device_status?: string | null
+          device_type?: string
+          firmware_version?: string | null
+          id?: string
+          imei?: string | null
+          last_communication?: string | null
+          operator?: string | null
+          signal_strength?: number | null
+          updated_at?: string
+        }
+        Update: {
+          battery_level?: number | null
+          chip_number?: string | null
+          client_id?: string
+          configuration?: Json | null
+          created_at?: string
+          device_name?: string
+          device_status?: string | null
+          device_type?: string
+          firmware_version?: string | null
+          id?: string
+          imei?: string | null
+          last_communication?: string | null
+          operator?: string | null
+          signal_strength?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitoring_devices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monitoring_events: {
+        Row: {
+          alert_sent: boolean | null
+          battery_level: number | null
+          created_at: string
+          device_id: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          processed: boolean | null
+          signal_strength: number | null
+          timestamp: string
+        }
+        Insert: {
+          alert_sent?: boolean | null
+          battery_level?: number | null
+          created_at?: string
+          device_id: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          processed?: boolean | null
+          signal_strength?: number | null
+          timestamp?: string
+        }
+        Update: {
+          alert_sent?: boolean | null
+          battery_level?: number | null
+          created_at?: string
+          device_id?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          processed?: boolean | null
+          signal_strength?: number | null
+          timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitoring_events_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "monitoring_devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
