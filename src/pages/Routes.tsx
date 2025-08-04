@@ -10,6 +10,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import CsvImporter from '@/components/common/CsvImporter';
 import CreateRouteModal from '@/components/routes/CreateRouteModal';
 import { useRoutes } from '@/hooks/useRoutes';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 const Routes = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,6 +19,7 @@ const Routes = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   
   const { routes, loading, createRoute, updateRouteStatus, optimizeRoute, deleteRoute } = useRoutes();
+  const { openNavigation, loading: gpsLoading } = useGeolocation();
 
   const sampleRouteData = [
     {
@@ -80,6 +82,19 @@ const Routes = () => {
     } finally {
       setIsOptimizing(null);
     }
+  };
+
+  const handleNavigateRoute = async (route: any) => {
+    if (!route.stops || route.stops.length === 0) {
+      return;
+    }
+
+    const destinations = route.stops.map((stop: any) => ({
+      name: stop.client_name,
+      address: stop.address
+    }));
+
+    await openNavigation(destinations);
   };
 
   const getStatusBadge = (status: string) => {
@@ -250,9 +265,14 @@ const Routes = () => {
                           <Zap className="h-4 w-4 mr-2" />
                           {isOptimizing === route.id ? 'Otimizando...' : 'Otimizar'}
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleNavigateRoute(route)}
+                          disabled={gpsLoading || !route.stops || route.stops.length === 0}
+                        >
                           <Navigation className="h-4 w-4 mr-2" />
-                          Navegar
+                          {gpsLoading ? 'Obtendo GPS...' : 'Navegar'}
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
