@@ -10,6 +10,7 @@ import Clients from "./pages/Clients";
 import RoutesPage from "./pages/Routes";
 import ServiceOrders from "./pages/ServiceOrders";
 import Incidents from "./pages/Incidents";
+import Monitoring from "./pages/Monitoring";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/routes" element={<RoutesPage />} />
           <Route path="/service-orders" element={<ServiceOrders />} />
           <Route path="/incidents" element={<Incidents />} />
+          <Route path="/monitoring" element={<Monitoring />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
